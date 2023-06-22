@@ -137,8 +137,9 @@ ll phin(ll n)
 } // O(sqrt(N))
 ll getRandomNumber(ll l, ll r) { return uniform_int_distribution<ll>(l, r)(rng); }
 /*--------------------------------------------------------------------------------------------------------------------------*/
+int n, a, b, c;
 int dp[5000];
-int ribbon(int n, int a, int b, int c)
+int f(int n)
 {
     if (n < 0)
         return -INF;
@@ -146,19 +147,17 @@ int ribbon(int n, int a, int b, int c)
         return 0;
     if (dp[n] != -1)
         return dp[n];
+    int x = 1 + f(n - a);
+    int y = 1 + f(n - b);
+    int z = 1 + f(n - c);
 
-    int x = ribbon(n - a, a, b, c) + 1;
-    int y = ribbon(n - b, a, b, c) + 1;
-    int z = ribbon(n - c, a, b, c) + 1;
-    dp[n] = max({x, y, z});
-    return dp[n];
+    return dp[n] = max({x, y, z});
 }
 void solve()
 {
-    int n, a, b, c;
     cin >> n >> a >> b >> c;
     memset(dp, -1, sizeof(dp));
-    cout << ribbon(n, a, b, c) << "\n";
+    cout << f(n) << "\n";
 }
 signed main()
 {

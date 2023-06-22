@@ -137,51 +137,43 @@ ll phin(ll n)
 } // O(sqrt(N))
 ll getRandomNumber(ll l, ll r) { return uniform_int_distribution<ll>(l, r)(rng); }
 /*--------------------------------------------------------------------------------------------------------------------------*/
-const int MAX_H = 50;
-const int MAX_W = 50;
 
-int H, W;
-int A[MAX_H][MAX_W];
-int dp[MAX_H][MAX_W];
-
-int countPaths(int i, int j, unordered_set<int> &seen)
+int n, m;
+int arr[100][100];
+int dfs(int i, int j, set<int> &s)
 {
-    if (i == H - 1 && j == W - 1)
-    {
+    if (i == n - 1 && j == m - 1)
         return 1;
-    }
 
-    int paths = 0;
-    if (i + 1 < H && !seen.count(A[i + 1][j]))
+    int cnt = 0;
+    if (i + 1 < n && s.find(arr[i + 1][j]) == s.end())
     {
-        seen.insert(A[i + 1][j]);
-        paths += countPaths(i + 1, j, seen);
-        seen.erase(A[i + 1][j]);
+        s.insert(arr[i + 1][j]);
+        cnt += dfs(i + 1, j, s);
+        s.erase(arr[i + 1][j]);
     }
-    if (j + 1 < W && !seen.count(A[i][j + 1]))
+    if (j + 1 < m && s.find(arr[i][j + 1]) == s.end())
     {
-        seen.insert(A[i][j + 1]);
-        paths += countPaths(i, j + 1, seen);
-        seen.erase(A[i][j + 1]);
+        s.insert(arr[i][j + 1]);
+        cnt += dfs(i, j + 1, s);
+        s.erase(arr[i][j + 1]);
     }
-
-    return paths;
+    return cnt;
 }
 void solve()
 {
 
-    cin >> H >> W;
-    for (int i = 0; i < H; i++)
-    {
-        for (int j = 0; j < W; j++)
-        {
-            cin >> A[i][j];
-        }
-    }
-    dp[H - 1][W - 1] = 1;
-    unordered_set<int> seen;
-    seen.insert(A[0][0]);
-    cout << countPaths(0, 0, seen) << endl;
+    n, m;
+    cin >> n >> m;
+
+    REP(i, 0, n)
+    REP(j, 0, m)
+    cin >> arr[i][j];
+
+    set<int> s;
+    s.insert(arr[0][0]);
+
+    cout << dfs(0, 0, s);
 }
 signed main()
 {

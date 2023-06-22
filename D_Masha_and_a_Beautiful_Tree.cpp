@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
+using namespace chrono;
 #define REP(i, x, y) for (long long i = x; i < y; i++)
 #define F first
 #define S second
@@ -7,10 +8,13 @@ using namespace std;
 #define eb emplace_back
 #define MOD 1000000007
 #define int long long
-#define all(x) x.begin(), x.end()
-#define INF 1e18
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define sz(x) (int)x.size()
+#define INF 2e18
 typedef long long ll;
 typedef vector<int> vi;
+typedef vector<bool> vb;
 typedef vector<vi> vvi;
 typedef vector<ll> vll;
 typedef pair<int, int> pii;
@@ -18,6 +22,7 @@ typedef pair<ll, ll> pll;
 typedef vector<pii> vpii;
 typedef vector<pll> vpll;
 
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 /*---------------------------------------------------------------------------------------------------------------------------*/
 ll gcd(ll a, ll b)
 {
@@ -132,7 +137,47 @@ ll phin(ll n)
         number = (number / n * (n - 1));
     return number;
 } // O(sqrt(N))
+ll getRandomNumber(ll l, ll r) { return uniform_int_distribution<ll>(l, r)(rng); }
+// first four is adjacent after digonal
+int dx[8] = {0, 1, 0, -1, 1, 1, -1, -1};
+int dy[8] = {1, 0, -1, 0, 1, -1, -1, 1};
 /*--------------------------------------------------------------------------------------------------------------------------*/
+void solve()
+{
+    int n;
+    cin >> n;
+    vi v(n);
+    REP(i, 0, n)
+    cin >> v[i];
+
+    auto check = [&](set<int> &s)
+    {
+        int temp = *s.begin();
+        s.erase(s.begin());
+        for (auto i : s)
+        {
+            if (temp + 1 == i)
+                temp = i;
+            else
+                return false;
+        }
+        return true;
+    };
+    int d = log2(n);
+    int x = 2;
+    while (d > 0)
+    {
+
+        for (int j = 0; j < n; j += x)
+        {
+            set<int> s(v.begin() + j, v.begin() + j + x);
+            if (!check(s))
+            {
+                cout << -1 << "\n";
+            }
+        }
+    }
+}
 signed main()
 {
     ios_base::sync_with_stdio(false);
@@ -143,27 +188,7 @@ signed main()
     cin >> tc;
     while (tc--)
     {
-        int n;
-        cin >> n;
-        vi v(n);
-        REP(i, 0, n)
-        cin >> v[i];
-        if (n == 1)
-        {
-            cout << 0 << "\n";
-            continue;
-        }
-        int cnt = 0;
-        if (v[0] <= n / 2)
-        {
-            for (int i = 0; i < n / 2; i += 2)
-            {
-                if (abs(v[i] - v[i + 1]) == 1 && v[i] > v[i + 1] && v[i + 1] < i + 1 < n)
-                {
-                    cnt++;
-                }
-            }
-        }
+        solve();
     }
     return 0;
 }

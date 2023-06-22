@@ -137,48 +137,48 @@ ll phin(ll n)
 } // O(sqrt(N))
 ll getRandomNumber(ll l, ll r) { return uniform_int_distribution<ll>(l, r)(rng); }
 /*--------------------------------------------------------------------------------------------------------------------------*/
-vi t, v;
-void build(int start, int end, int ind)
-{
-    if (start == end)
-    {
-        t[ind] = v[start];
-        return;
-    }
-    int mid = (start + end) / 2;
-    build(start, mid, 2 * ind);
-    build(mid + 1, end, 2 * ind + 1);
-    t[ind] = min(t[2 * ind], t[2 * ind + 1]);
-}
 
-int query(int start, int end, int l, int r, int ind)
+struct SparseTable
 {
-    // disjoint
-    if (start > r || end < l)
-        return INF;
-    // complete overlap
-    if (start >= l && end <= r)
-        return t[ind];
-    int mid = (start + end) / 2;
-    int left = query(start, mid, l, r, 2 * ind);
-    int right = query(mid + 1, end, l, r, 2 * ind + 1);
-    return min(left, right);
-}
+    int n, LOG;
+    vector<vector<int>> table;
+    int merge(int x, int y)
+    {
+        return min(x, y);
+    }
+    SparseTable(const vector<int> &a) : n(a.size()), LOG(__lg(n)), table(n, vector<int>(LOG + 1, -1))
+    {
+        for (int j = 0; j <= LOG; j++)
+        {
+            for (int i = 0; i <= n - (1 << j); i++)
+            {
+                if (j == 0)
+                    table[i][j] = a[i];
+                else
+                    table[i][j] = merge(table[i][j - 1], table[i + (1 << (j - 1))][j - 1]);
+            }
+        }
+    }
+    int query(int l, int r)
+    {
+        int j = __lg(r - l + 1);
+        return merge(table[l][j], table[r - (1 << j) + 1][j]);
+    }
+};
 void solve()
 {
     int n, q;
     cin >> n >> q;
-    v.resize(n);
+    vi v(n);
     REP(i, 0, n)
     cin >> v[i];
-    t.resize(4 * n);
-    build(0, n - 1, 1);
+    SparseTable st(v);
     while (q--)
     {
         int l, r;
         cin >> l >> r;
 
-        cout << query(0, n - 1, l - 1, r - 1, 1) << "\n";
+        cout << st.query(l - 1, r - 1) << "\n";
     }
 }
 signed main()

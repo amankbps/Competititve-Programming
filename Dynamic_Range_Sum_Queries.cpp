@@ -137,60 +137,45 @@ ll phin(ll n)
 } // O(sqrt(N))
 ll getRandomNumber(ll l, ll r) { return uniform_int_distribution<ll>(l, r)(rng); }
 /*--------------------------------------------------------------------------------------------------------------------------*/
-vi t, v;
-int merge(int l, int r)
-{
-    return l + r;
-}
-void build(int s, int e, int ind)
-{
-    if (s == e)
-    {
-        t[ind] = v[s];
-        return;
-    }
-    int mid = (s + e) / 2;
-    build(s, mid, 2 * ind);
-    build(mid + 1, e, 2 * ind + 1);
-    t[ind] = merge(t[2 * ind], t[2 * ind + 1]);
-}
-void update(int s, int e, int ind, int pos, int val)
-{
 
-    if (s == e)
-    {
-        t[ind] = val;
-        return;
-    }
-    int mid = (s + e) / 2;
-    if (mid >= pos)
-        update(s, mid, 2 * ind, pos, val);
-    else
-        update(mid + 1, e, 2 * ind + 1, pos, val);
-    t[ind] = merge(t[2 * ind], t[2 * ind + 1]);
-}
-
-int query(int s, int e, int ind, int l, int r)
+struct FenwickTree
 {
-    // disjoint
-    if (s > r || e < l)
-        return 0;
-    if (s >= l && e <= r)
-        return t[ind];
-    int mid = (s + e) / 2;
-    int left = query(s, mid, 2 * ind, l, r);
-    int right = query(mid + 1, e, 2 * ind + 1, l, r);
-    return merge(left, right);
-}
+    int n;
+    vector<int> bit;
+    FenwickTree(vector<int> &a) : n(a.size()), bit(n + 1)
+    {
+        for (int i = 0; i < n; i++)
+            upd(i, a[i]);
+    }
+    // while updatin fendwdick tree update delta
+    //   ft.upd(pos - 1, val - v[pos - 1]);
+    //             v[pos - 1] = val;
+    void upd(int i, int x)
+    {
+        for (i++; i <= n; i += (i & -i))
+            bit[i] += x;
+    }
+    int sum(int i)
+    {
+        int s = 0;
+        for (i++; i > 0; i -= (i & -i))
+            s += bit[i];
+        return s;
+    }
+    int query(int l, int r)
+    {
+        return sum(r) - sum(l - 1);
+    }
+};
 void solve()
 {
     int n, q;
     cin >> n >> q;
-    v.resize(n);
-    t.resize(4 * n);
+    vi v(n);
+
     REP(i, 0, n)
     cin >> v[i];
-    build(0, n - 1, 1);
+    FenwickTree ft(v);
     while (q--)
     {
         int op;
@@ -199,13 +184,14 @@ void solve()
         {
             int l, r;
             cin >> l >> r;
-            cout << query(0, n - 1, 1, l - 1, r - 1) << "\n";
+            cout << ft.query(l - 1, r - 1) << "\n";
         }
         else
         {
             int pos, val;
             cin >> pos >> val;
-            update(0, n - 1, 1, pos - 1, val);
+            ft.upd(pos - 1, val - v[pos - 1]);
+            v[pos - 1] = val;
         }
     }
 }
