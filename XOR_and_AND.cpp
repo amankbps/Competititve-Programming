@@ -142,19 +142,42 @@ void solve()
     int n;
     cin >> n;
     vi v(31, 0);
+    int oor = 0;
+    int m = MOD;
     REP(i, 0, n)
     {
         int a;
         cin >> a;
-        int p = log2(a);
-        v[p]++;
+        oor |= a;
+        for (int j = 0; j < 31; j++)
+        {
+            if (a & (1LL << j))
+                v[j]++;
+        }
     }
-    int ans = 0;
+    int ans1 = 0, ans2 = 0, ans3 = 0, ans4 = 0;
+
+    // sum of all xor pairs
+    ans2 = mod_mul(oor, expo(2, n - 1, m), m);
     REP(i, 0, 31)
     {
-        ans += (v[i] * (v[i] - 1) / 2);
+        int cnt1 = v[i], cnt0 = n - v[i];
+        // sub of all paris of xor
+        int temp = mod_mul(cnt1, cnt0, m);
+        temp = mod_mul(temp, expo(2, i, m), m);
+        ans1 = mod_add(ans1, temp, m);
+
+        // sub of all pairs of and
+        temp = cnt1 * (cnt1 - 1) / 2;
+        temp = mod_mul(temp, expo(2, i, m), m);
+        ans3 = mod_add(ans3, temp, m);
+
+        // sub of and of all subset
+        int sub = expo(2, cnt1, m) - 1;
+        sub = mod_mul(sub, expo(2, i, m), m);
+        ans4 = mod_add(ans4, sub, m);
     }
-    cout << ans << "\n";
+    cout << ans1 << " " << ans2 << " " << ans3 << " " << ans4 << "\n";
 }
 signed main()
 {

@@ -1,5 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
+using namespace chrono;
+// PBDS
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+template <typename T>
+using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// if we want set then change less_equal to less
+// in multiset use --lower_bound() to find and erase
+//  find_by_order(k): It returns to an iterator to the kth element
+// order_of_key(k) : It returns to the number of items that are strictly smaller
 #define REP(i, x, y) for (long long i = x; i < y; i++)
 #define F first
 #define S second
@@ -7,10 +18,13 @@ using namespace std;
 #define eb emplace_back
 #define MOD 1000000007
 #define int long long
-#define all(x) x.begin(), x.end()
-#define INF 1e18
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define sz(x) (int)x.size()
+#define INF 2e18
 typedef long long ll;
 typedef vector<int> vi;
+typedef vector<bool> vb;
 typedef vector<vi> vvi;
 typedef vector<ll> vll;
 typedef pair<int, int> pii;
@@ -18,6 +32,7 @@ typedef pair<ll, ll> pll;
 typedef vector<pii> vpii;
 typedef vector<pll> vpll;
 
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 /*---------------------------------------------------------------------------------------------------------------------------*/
 ll gcd(ll a, ll b)
 {
@@ -132,47 +147,57 @@ ll phin(ll n)
         number = (number / n * (n - 1));
     return number;
 } // O(sqrt(N))
+ll getRandomNumber(ll l, ll r) { return uniform_int_distribution<ll>(l, r)(rng); }
+// first four is adjacent after digonal
+int dx[8] = {0, 1, 0, -1, 1, 1, -1, -1};
+int dy[8] = {1, 0, -1, 0, 1, -1, -1, 1};
 /*--------------------------------------------------------------------------------------------------------------------------*/
-void dfs(int node, int cnt, vector<vector<int>> &adj, vi &vis)
-{
-    vis[node] = cnt;
-    for (auto i : adj[node])
-    {
-        if (!vis[i])
-            dfs(i, cnt, adj, vis);
-    }
-}
 void solve()
 {
     int n, m;
     cin >> n >> m;
-    n += 1;
-    vector<vector<int>> adj(n);
+    vi adj[n + 1];
     REP(i, 0, m)
     {
         int u, v;
         cin >> u >> v;
-        adj[u].pb(v);
-        adj[v].pb(u);
+        adj[u].eb(v);
+        adj[v].eb(u);
     }
-    vi vis(n, 0);
-    int cnt = 0;
-    for (int i = 1; i < n; i++)
+
+    vb vis(n + 1, 0);
+
+    function<void(int)> bfs = [&](int node)
+    {
+        queue<int> q;
+        q.push(node);
+        vis[node] = 1;
+        while (!q.empty())
+        {
+            int cur = q.front();
+            q.pop();
+            for (auto it : adj[cur])
+            {
+                if (!vis[it])
+                {
+                    vis[it] = 1;
+                    q.push(it);
+                }
+            }
+        }
+    };
+
+    int ans = 0;
+    REP(i, 1, n + 1)
     {
         if (!vis[i])
         {
-            cnt++;
-            dfs(i, cnt, adj, vis);
+            ans++;
+            bfs(i);
         }
     }
-    int ans[cnt + 1];
-    for (int i = 1; i < n; i++)
-    {
-        ans[vis[i]] = i;
-    }
-    cout << cnt - 1 << "\n";
-    for (int i = 1; i < cnt; i++)
-        cout << ans[i] << " " << ans[i + 1] << "\n";
+
+    cout << ans - 1 << "\n";
 }
 signed main()
 {
@@ -180,7 +205,11 @@ signed main()
     cin.tie(NULL);
     cout.tie(NULL);
 
-    solve();
-
+    int tc = 1;
+    // cin >> tc;
+    while (tc--)
+    {
+        solve();
+    }
     return 0;
 }

@@ -170,19 +170,16 @@ void update(int start, int end, int ind, int pos)
     t[ind] = merge(t[2 * ind], t[2 * ind + 1]);
 }
 
-int query(int start, int end, int ind, int l, int r)
+int findkth(int ind, int l, int r, int k)
 {
-    // disjoiont
-    if (start > r || end < l)
-        return 0;
+    if (l == r)
+        return l;
 
-    // complete lies
-    if (start >= l && end <= r)
-        return t[ind];
-    int mid = (start + end) >> 1;
-    int left = query(start, mid, 2 * ind, l, r);
-    int right = query(mid + 1, end, 2 * ind + 1, l, r);
-    return merge(left, right);
+    int mid = (l + r) / 2;
+    if (k <= t[2 * ind])
+        return findkth(2 * ind, l, mid, k);
+    else
+        return findkth(2 * ind + 1, mid + 1, r, k - t[2 * ind]);
 }
 
 void solve()
@@ -208,25 +205,7 @@ void solve()
         {
             int k;
             cin >> k;
-            k++;
-            auto check = [&](int mid)
-            {
-                int sum = query(0, n - 1, 1, 0, mid);
-                return sum >= k;
-            };
-            int low = 0, high = n - 1, ans = 0;
-            while (low <= high)
-            {
-                int mid = (low + high) >> 1;
-                if (check(mid))
-                {
-                    ans = mid;
-                    high = mid - 1;
-                }
-                else
-                    low = mid + 1;
-            }
-            cout << ans << "\n";
+            cout << findkth(1, 0, n - 1, k + 1) << "\n";
         }
     }
 }

@@ -148,36 +148,18 @@ void solve()
 
     auto check = [&](int mid)
     {
-        int cnt = 1, sum = 0, ind = -1, maxi = 0;
+        int cnt = 1, sum = 0;
         REP(i, 0, n)
         {
-            if (cnt == k - 1)
-            {
-                ind = i;
-                break;
-            }
-            if (sum + v[i] >= mid)
-            {
-                maxi = max(maxi, sum);
-                sum = v[i];
-                cnt++;
-            }
+            if (sum + v[i] <= mid)
+                sum += v[i];
             else
             {
-                sum += v[i];
+                cnt++;
+                sum = v[i];
             }
         }
-        sum = 0;
-        if (ind != -1)
-        {
-            REP(i, ind, n)
-            sum += v[i];
-            cnt++;
-        }
-        maxi = max(maxi, sum);
-        if (cnt < k)
-            return false;
-        return true;
+        return cnt <= k;
     };
     int ans = high;
     while (low <= high)
@@ -185,11 +167,11 @@ void solve()
         int mid = low + (high - low) / 2;
         if (check(mid))
         {
-
+            ans = mid;
             high = mid - 1;
         }
         else
-            low = mid + 1, ans = mid;
+            low = mid + 1;
     }
     cout << ans << "\n";
 }

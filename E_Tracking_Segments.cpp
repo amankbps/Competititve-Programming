@@ -1,6 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
 using namespace chrono;
+// PBDS
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+template <typename T>
+using ordered_set = tree<T, null_type, less_equal<T>, rb_tree_tag, tree_order_statistics_node_update>;
+// if we want set then change less_equal to less
+// in multiset use --lower_bound() to find and erase
+//  find_by_order(k): It returns to an iterator to the kth element
+// order_of_key(k) : It returns to the number of items that are strictly smaller
 #define REP(i, x, y) for (long long i = x; i < y; i++)
 #define F first
 #define S second
@@ -142,89 +152,52 @@ ll getRandomNumber(ll l, ll r) { return uniform_int_distribution<ll>(l, r)(rng);
 int dx[8] = {0, 1, 0, -1, 1, 1, -1, -1};
 int dy[8] = {1, 0, -1, 0, 1, -1, -1, 1};
 /*--------------------------------------------------------------------------------------------------------------------------*/
-
-bool rat(int x, vector<int> &b, vector<vector<int>> &a)
-{
-    vector<int> ds(b.size(), 0);
-
-    for (int i = 0; i <= x; i++)
-    {
-        ds[b[i]]++;
-    }
-
-    for (vector<int> &range : a)
-    {
-        int s = 0;
-        for (int j = range[0]; j <= range[1]; j++)
-        {
-            s += ds[j];
-        }
-
-        if (s > (range[1] - range[0] + 1) / 2)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-int binarySearch(int low, int high, vector<int> &b, vector<vector<int>> &a)
-{
-    int result = -1;
-
-    while (low <= high)
-    {
-        int mid = low + (high - low) / 2;
-
-        if (rat(mid, b, a))
-        {
-            result = mid;
-            high = mid - 1;
-        }
-        else
-        {
-            low = mid + 1;
-        }
-    }
-
-    return result;
-}
 void solve()
 {
-
     int n, m;
     cin >> n >> m;
-
-    vector<int> b(n);
-    for (int i = 0; i < n; i++)
-    {
-        cin >> b[i];
-    }
-
-    vector<vector<int>> a(m, vector<int>(2));
-    for (int i = 0; i < m; i++)
-    {
-        cin >> a[i][0] >> a[i][1];
-    }
+    vpii v(m);
+    REP(i, 0, m)
+    cin >> v[i].F >> v[i].S;
 
     int q;
     cin >> q;
-
-    vector<int> queries(q);
-    for (int i = 0; i < q; i++)
+    vi a(q);
+    REP(i, 0, q)
+    cin >> a[i];
+    auto check = [&](int mid)
     {
-        cin >> queries[i];
-    }
+        vi prefix(n + 1, 0);
+        for (int i = 0; i <= mid; i++)
+            prefix[a[i]] = 1;
+        for (int i = 1; i <= n; i++)
+            prefix[i] += prefix[i - 1];
+        int cnt = 0;
+        for (auto i : v)
+        {
+            int sum = prefix[i.S] - prefix[i.F - 1];
+            int d = i.S - i.F + 1;
+            if (sum > d - sum)
+                cnt++;
+        }
+        return cnt >= 1;
+    };
 
-    for (int query : queries)
+    int low = 0, high = q - 1, ans = -1;
+    while (low <= high)
     {
-        int low = 0;
-        int high = query - 1;
-
-        int result = binarySearch(low, high, b, a);
-        cout << result << "\n";
+        int mid = (low + high) / 2;
+        if (check(mid))
+        {
+            ans = mid;
+            high = mid - 1;
+        }
+        else
+            low = mid + 1;
     }
+    if (ans != -1)
+        ans++;
+    cout << ans << "\n";
 }
 signed main()
 {
